@@ -33,6 +33,8 @@ The schemas in each route are the source-of-truth contract with the mobile app. 
 
 `entries` is always passed **most-recent first** — every route slices the head (`entries.slice(0, N)`). Don't sort or reverse on the server.
 
+`app/page.tsx` and `app/layout.tsx` are leftover create-next-app boilerplate — this project is API-only. Ignore them; don't edit them in response to "fix the home page" type requests.
+
 ### Routes
 
 - **`coach`** — Streaming chat. Uses `streamText` + `toUIMessageStreamResponse()`; the mobile client decodes it via `@ai-sdk/react`'s `useChat`. Has three tools: `create_goal`, `schedule_reminder`, `suggest_replies`. `stopWhen: stepCountIs(5)` caps tool-call rounds. Recent 14 entries are flattened into the system prompt.
@@ -46,9 +48,9 @@ The schemas in each route are the source-of-truth contract with the mobile app. 
 
 Each route pins its model in a top-of-file `MODEL` constant — currently a mix of `groq('openai/gpt-oss-20b')` (coach, daily-plan, weekly-dungeon) and `groq('llama-3.3-70b-versatile')` (goal-plan, weekly-insight, voice-pep). To swap models, edit that constant. We were originally on Vercel AI Gateway but switched to Groq because Gateway requires a card on file even for the free $5 credit; to move back, swap the import to `@ai-sdk/gateway` and use plain `'anthropic/claude-haiku-4-5'`-style strings.
 
-`maxDuration = 30` is the per-route function timeout; bump if streams get cut off.
+`maxDuration = 30` is the per-route function timeout — well below Vercel's 300s default, intentionally tight so a stuck Groq call fails fast. Bump if streams get cut off.
 
-AI SDK is **v6**, so `convertToModelMessages` returns a Promise — must be awaited.
+AI SDK is **v6** — in `coach`, `convertToModelMessages` returns a Promise and must be awaited. The other routes go through `generateText`/`generateObject` and don't touch it.
 
 ## System prompt rules (don't drop these)
 
