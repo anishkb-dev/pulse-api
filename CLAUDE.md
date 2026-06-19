@@ -18,7 +18,14 @@ npm run lint         # eslint
 npx tsc --noEmit     # typecheck
 ```
 
-No test suite — verification is by running the dev server and exercising routes from the mobile app (`../pulse`) or curl. Stack is `next@16` + `react@19` + AI SDK v6; APIs differ from older Next.js, so check `node_modules/next/dist/docs/` before assuming.
+No test suite — verification is by running the dev server and exercising routes from the mobile app (`../pulse`) or curl. With `npm run dev` running, hit a one-shot route directly:
+
+```bash
+curl -s localhost:3000/api/daily-plan -H 'content-type: application/json' \
+  -d '{"hour":9,"name":"Sam","goals":[{"id":1,"title":"Sleep by 11","emoji":"😴","type":"build"}],"entries":[{"createdAt":1718787600000,"mood":3,"sleep":2,"energy":3}]}'
+```
+
+A bad body returns `400` + a flattened zod error, so curl is also how you check a schema change. Stack is `next@16` + `react@19` + AI SDK v6; APIs differ from older Next.js, so check `node_modules/next/dist/docs/` before assuming.
 
 ## Architecture
 
@@ -31,7 +38,7 @@ Each endpoint lives in its own `app/api/<name>/route.ts`. They share a common sh
 
 The schemas in each route are the source-of-truth contract with the mobile app. If you change one, the matching mobile transport (`prepareSendMessagesRequest` for `useChat`, or the plain `fetch` call for the others) must change in lockstep.
 
-`entries` is always passed **most-recent first** — every route slices the head (`entries.slice(0, N)`). Don't sort or reverse on the server.
+`entries` is always passed **most-recent first** — every route slices the head (`entries.slice(0, N)`). Don't sort or reverse on the server. N varies by route: `coach` keeps 14, `daily-plan` / `weekly-dungeon` / `weekly-insight` keep 7, `voice-pep` keeps 5. (Note the body schemas cap `entries` higher — e.g. `.max(14)` — so the slice, not the schema, is the real window.)
 
 `app/page.tsx` and `app/layout.tsx` are leftover create-next-app boilerplate — this project is API-only. Ignore them; don't edit them in response to "fix the home page" type requests.
 
@@ -46,7 +53,7 @@ The schemas in each route are the source-of-truth contract with the mobile app. 
 
 ### Model selection
 
-Each route pins its model in a top-of-file `MODEL` constant — currently a mix of `groq('openai/gpt-oss-20b')` (coach, daily-plan, weekly-dungeon) and `groq('llama-3.3-70b-versatile')` (goal-plan, weekly-insight, voice-pep). To swap models, edit that constant. We were originally on Vercel AI Gateway but switched to Groq because Gateway requires a card on file even for the free $5 credit; to move back, swap the import to `@ai-sdk/gateway` and use plain `'anthropic/claude-haiku-4-5'`-style strings.
+Each route pins its model in a top-of-file `MODEL` constant — currently a mix of `groq('openai/gpt-oss-20b')` (coach, daily-plan, weekly-dungeon) and `groq('llama-3.3-70b-versatile')` (goal-plan, weekly-insight, voice-pep). To swap models, edit that constant. We were originally on Vercel AI Gateway but switched to Groq because Gateway requires a card on file even for the free $5 credit; to move back, swap the import to `@ai-sdk/gateway` and use plain `'anthropic/claude-haiku-4-5'`-style strings. `@ai-sdk/gateway` is still in `package.json` for exactly this reason — it's currently unimported, but keep it; it's not dead weight.
 
 `maxDuration = 30` is the per-route function timeout — well below Vercel's 300s default, intentionally tight so a stuck Groq call fails fast. Bump if streams get cut off.
 
