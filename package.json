@@ -12,10 +12,13 @@
     "@ai-sdk/gateway": "^3.0.110",
     "@ai-sdk/groq": "^3.0.38",
     "ai": "^6.0.175",
-    "next": "16.2.5",
+    "next": "16.2.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "zod": "^4.4.3"
+  },
+  "overrides": {
+    "postcss": "^8.5.15"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -23,7 +26,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
