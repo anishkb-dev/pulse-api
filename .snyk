@@ -1,0 +1,26 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JS-AI-16734889:
+    - '*':
+        reason: >-
+          No upstream patch available; routes only call fixed Groq/ElevenLabs
+          endpoints, no user-controlled URLs reach the SDK fetch layer.
+        expires: 2026-09-19T00:00:00.000Z
+        created: 2026-06-19T08:20:26.540Z
+  SNYK-JS-AISDKPROVIDERUTILS-16734888:
+    - '*':
+        reason: >-
+          No upstream patch available; SSRF requires attacker-controlled URL,
+          none reaches the fetch in this app.
+        expires: 2026-09-19T00:00:00.000Z
+        created: 2026-06-19T08:20:30.512Z
+  SNYK-JS-AISDKPROVIDERUTILS-16735288:
+    - '*':
+        reason: >-
+          No upstream patch available; transitive via @ai-sdk provider-utils,
+          awaiting fix.
+        expires: 2026-09-19T00:00:00.000Z
+        created: 2026-06-19T08:20:34.374Z
+patch: {}
