@@ -14,6 +14,19 @@ The Pulse mobile app needs AI features — a coach you can chat with, daily plan
 
 ## How it works
 
+```mermaid
+flowchart LR
+    A["Pulse mobile app<br/>(ships no API keys)"] -->|"check-ins, goals"| B["pulse-api<br/>(Next.js · holds the keys)"]
+    B -->|"prompt + context"| C["Groq<br/>Llama 3.3 70B"]
+    B -->|"pep-talk script"| D["ElevenLabs<br/>TTS"]
+    C -->|"chat / structured JSON"| B
+    D -->|"audio"| B
+    B -->|"streamed / JSON response"| A
+```
+
+The mobile app can't safely embed a model API key (binaries are decompilable), so
+this backend is the **trusted proxy** that holds the secrets and talks to the AI providers.
+
 Each endpoint lives in its own `app/api/<name>/route.ts` and shares the same shape:
 
 1. **Validate** — a Zod `BodySchema` parses the POST body and fails closed with a `400` + flattened error on bad input.
