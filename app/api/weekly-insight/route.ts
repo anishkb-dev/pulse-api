@@ -2,7 +2,7 @@ import { groq } from '@ai-sdk/groq';
 import { generateText } from 'ai';
 import { z } from 'zod';
 
-const MODEL = groq('llama-3.3-70b-versatile');
+const MODEL = groq('openai/gpt-oss-20b');
 
 export const maxDuration = 30;
 
