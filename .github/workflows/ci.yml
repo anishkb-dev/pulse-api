@@ -14,7 +14,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # @ai-sdk/* declare "node": ">=22". Node 20 is unsupported by our own
+          # dependencies and npm 10 (bundled with 20) resolved packages the
+          # lockfile does not contain, breaking the build.
+          node-version: 22
           cache: npm
 
       # `npm ci` installs strictly from package-lock.json. A drifted node_modules
