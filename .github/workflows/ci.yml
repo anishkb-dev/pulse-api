@@ -25,6 +25,15 @@ jobs:
       - name: Install
         run: npm ci
 
+      # Diagnostic: CI installs 377 packages where macOS installs 369 from the
+      # same byte-identical lockfile, pulling @ai-sdk/*@4.0.0 which the lock
+      # does not contain. Print the resolved tree so the mismatch is visible.
+      - name: Show resolved AI SDK versions
+        run: |
+          node -v && npm -v
+          npm ls @ai-sdk/groq @ai-sdk/gateway @ai-sdk/provider @ai-sdk/provider-utils ai || true
+          cat .npmrc 2>/dev/null || echo "(no repo .npmrc)"
+
       - name: Typecheck
         run: npx tsc --noEmit
 
