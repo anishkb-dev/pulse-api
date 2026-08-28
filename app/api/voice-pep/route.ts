@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 export const maxDuration = 30;
 
-const TEXT_MODEL = groq('llama-3.3-70b-versatile');
+const TEXT_MODEL = groq('openai/gpt-oss-20b');
 
 // ElevenLabs free-tier starter voice. Override with ELEVENLABS_VOICE_ID env to swap.
 const DEFAULT_VOICE_ID = 'EXAVITQu4vr4xnSDxMaL'; // Sarah - warm, calm female

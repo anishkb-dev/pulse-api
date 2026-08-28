@@ -19,7 +19,7 @@
   },
   "overrides": {
     "postcss": "^8.5.15",
-    "@ai-sdk/provider-utils": "^4.0.41",
+    "@ai-sdk/provider-utils": "^5.0.0",
     "undici": "^6.21.1"
   },
   "devDependencies": {
