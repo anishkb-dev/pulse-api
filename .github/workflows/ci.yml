@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # @ai-sdk/* declare "node": ">=22". Node 20 is unsupported by our own
+          # dependencies and npm 10 (bundled with 20) resolved packages the
+          # lockfile does not contain, breaking the build.
+          node-version: 22
+          cache: npm
+
+      # `npm ci` installs strictly from package-lock.json. A drifted node_modules
+      # is exactly what broke the build for a month without anyone noticing.
+      - name: Install
+        run: npm ci
+
+      # Diagnostic: CI installs 377 packages where macOS installs 369 from the
+      # same byte-identical lockfile, pulling @ai-sdk/*@4.0.0 which the lock
+      # does not contain. Print the resolved tree so the mismatch is visible.
+      - name: Show resolved AI SDK versions
+        run: |
+          node -v && npm -v
+          npm ls @ai-sdk/groq @ai-sdk/gateway @ai-sdk/provider @ai-sdk/provider-utils ai || true
+          cat .npmrc 2>/dev/null || echo "(no repo .npmrc)"
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
